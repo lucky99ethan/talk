@@ -29,7 +29,7 @@ export default function Index() {
           </div>
         </header>
         <nav className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-gray-200 p-6 dark:border-gray-700">
-          <p className="leading-6 text-gray-700 dark:text-gray-200">
+          <p className="leading-6 text-red-600">
             What&apos;s next?
           </p>
           <ul>
