@@ -15,7 +15,7 @@ const TextField: React.FC<TextFieldProps> = ({ htmlFor, type, label, value, onCh
                 {label}
             </label>
             <input
-                id={htmlFor}
+                name={htmlFor}
                 type={type}
                 value={value}
                 onChange={onChange}

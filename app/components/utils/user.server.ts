@@ -3,6 +3,7 @@ import { RegistrationForm } from "./types.server";
 import bcrypt from "bcryptjs";
 
 export const createUser = async (form: RegistrationForm) => {
+    console.log("Creating user with form:", form);
     const passwordHash = await bcrypt.hash(form.password, 10);
     const user = await prisma.user.create({
         data: {
