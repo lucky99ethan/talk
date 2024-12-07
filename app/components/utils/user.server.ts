@@ -10,7 +10,9 @@ export const createUser = async (form: RegistrationForm) => {
             email: form.email,
             name: form.name,
             password: passwordHash,
+            
         }
     });
     return { id: user.id, email: user.email };
 };
+

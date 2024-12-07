@@ -21,6 +21,7 @@ model User {
   email     String   @unique
   password  String
   name      String
+  token     String?   ///token added
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
