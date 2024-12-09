@@ -10,9 +10,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-transparent text-white py-4 px-12 items-center flex justify-between">
+    <nav className="bg-transparent text-white py-4 px-12 items-center flex justify-between fixed top-0 left-0 w-full z-50">
       <div>
-        <span className="text-2xl font-bold">SaintStream</span>
+        <span className="text-2xl font-bold">TazamaNasi</span>
       </div>
       <div className="flex flex-row space-x-10">
         <Link to="/" className="hover:text-gray-400">Home</Link>
@@ -31,8 +31,16 @@ const Navbar = () => {
             />
           )}
         </div>
-        <button className="text-white border-2 border-white rounded-lg px-4 py-2 hover:bg-white hover:text-black transition duration-300">Sign Up</button>
-        <button className="w-20 h-10 bg-green-800 text-white rounded-lg hover:bg-green-700 transition duration-300">Login</button>
+        <Link to="/signup">
+          <button className="text-white border-2 border-white rounded-lg px-4 py-2 hover:bg-white hover:text-black transition duration-300">
+            Sign Up
+          </button>
+        </Link>
+        <Link to="/login">
+          <button className="w-20 h-10 bg-green-800 text-white rounded-lg hover:bg-green-700 transition duration-300">
+            Login
+          </button>
+        </Link>
       </div>
     </nav>
   );
