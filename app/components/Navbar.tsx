@@ -1,12 +1,28 @@
 import { useState } from "react";
 import { Link } from "@remix-run/react";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
   const [searchVisible, setSearchVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const userName = "John Doe"; // Replace with actual user name from your authentication logic
 
   const handleSearchClick = () => {
     setSearchVisible(!searchVisible);
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setShowDropdown(false);
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
   };
 
   return (
@@ -31,16 +47,37 @@ const Navbar = () => {
             />
           )}
         </div>
-        <Link to="/signup">
-          <button className="text-white border-2 border-white rounded-lg px-4 py-2 hover:bg-white hover:text-black transition duration-300">
-            Sign Up
-          </button>
-        </Link>
-        <Link to="/login">
-          <button className="w-20 h-10 bg-green-800 text-white rounded-lg hover:bg-green-700 transition duration-300">
-            Login
-          </button>
-        </Link>
+        {isLoggedIn ? (
+          <div className="relative">
+            <FaUserCircle className="text-white text-3xl cursor-pointer" onClick={toggleDropdown} />
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
+                <div className="p-4 border-b border-gray-200">
+                  <p className="font-semibold">{userName}</p>
+                </div>
+                <div className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
+                  Logout
+                </div>
+                <div className="p-4 cursor-pointer hover:bg-gray-100">
+                  Settings
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <Link to="/signup">
+              <button className="text-white border-2 border-white rounded-lg px-4 py-2 hover:bg-white hover:text-black transition duration-300" onClick={handleLogin}>
+                Sign Up
+              </button>
+            </Link>
+            <Link to="/login">
+              <button className="w-20 h-10 bg-green-800 text-white rounded-lg hover:bg-green-700 transition duration-300" onClick={handleLogin}>
+                Login
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
