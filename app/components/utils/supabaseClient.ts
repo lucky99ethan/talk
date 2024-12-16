@@ -1,25 +1,47 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import { Session, SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "database.types";
+import { useEffect, useState } from "react";
+import { useRevalidator } from "@remix-run/react";
 
-const SupabaseContext = createContext<SupabaseClient | null>(null);
+export type TypedSupabaseClient = SupabaseClient<Database>;
 
-export const SupabaseProvider = SupabaseContext.Provider;
-
-export const useSupabase = (env: { SUPABASE_URL: string; SUPABASE_ANON_KEY: string }, serverSession: any) => {
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
-
-  useEffect(() => {
-    const supabaseClient = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-    setSupabase(supabaseClient);
-  }, [env]);
-
-  return supabase;
+export type SupabaseOutletContext = {
+  supabase: TypedSupabaseClient;
+  domainUrl : string;
 };
 
-export const useSupabaseClient = () => {
-  const context = useContext(SupabaseContext);
-  if (context === null) {
-    throw new Error("useSupabaseClient must be used within a SupabaseProvider");
+type SupabaseEnv = {
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
+};
+
+type UseSupabase = {
+  env: SupabaseEnv;
+  serverSession: Session | null;
+};
+
+export const useSupabase = ({ env, serverSession }: UseSupabase) => {
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    throw new Error("SUPABASE_URL or SUPABASE_ANON_KEY is not defined");
   }
-  return context;
+  const [supabase] = useState(() =>
+    createBrowserClient<Database>(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+  );
+  const serverAccessToken = serverSession?.access_token;
+  const revalidator = useRevalidator();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.access_token !== serverAccessToken) {
+        revalidator.revalidate();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase.auth, serverAccessToken, revalidator]);
+
+  return { supabase };
 };

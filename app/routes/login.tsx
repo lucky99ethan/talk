@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import Layout from '~/components/layout';
 import type { MetaFunction } from '@remix-run/react';
 import TextField from '~/components/textField';
-import { Link, useActionData } from "@remix-run/react";
+import { Link, useActionData, useOutletContext } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { validationEmail, validatePassword } from '~/components/utils/validator.server';
 import { logins } from '~/components/utils/auth.server';
+import { SupabaseOutletContext } from '~/components/utils/supabaseClient';
 
 export const meta: MetaFunction = () => {
     return [
@@ -78,6 +79,18 @@ const Login = () => {
         }));
     }
 
+    const { supabase, domainUrl } = useOutletContext<SupabaseOutletContext>();
+    const handleSignIn = async () => {
+        await supabase.auth.signInWithOAuth(
+            {
+                provider: "github",
+                options: {
+                    redirectTo: `${domainUrl}/resources/auth/callback`,
+                },
+            }
+        );
+    }
+
     return (
         <Layout>
             <div className="h-full justify-center bg-yellow-100 items-center flex flex-col gap-y-5">
@@ -94,7 +107,6 @@ const Login = () => {
                         label="Email" 
                         value={formData.email} 
                         onChange={e => handleInputChange(e, 'email')} 
-
                     />
                     <TextField 
                         htmlFor="password" 
@@ -102,7 +114,6 @@ const Login = () => {
                         label="Password" 
                         value={formData.password} 
                         onChange={e => handleInputChange(e, 'password')} 
-            
                     />
                     <div className="w-full text-center mt-5">
                         <button type="submit" name="_action" value="Sign In" className="w-full rounded-xl mt-2 bg-red-500 px-3 py-2 text-white font-semibold transition duration-300 ease-in-out hover:bg-red-600">Login</button>

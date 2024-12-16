@@ -2,8 +2,8 @@ import { createServerClient, parse, serialize } from "@supabase/ssr";
 import { Database } from "database.types";
 
 export const getSupabaseEnv = () => ({
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+  SUPABASE_URL: process.env.SUPABASE_URL!,
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY!,
 });
 
 export function getSupabaseWithHeaders({ request }: { request: Request }) {
@@ -11,7 +11,7 @@ export function getSupabaseWithHeaders({ request }: { request: Request }) {
   const headers = new Headers();
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
+    process.env.SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(key) {
@@ -30,15 +30,12 @@ export function getSupabaseWithHeaders({ request }: { request: Request }) {
   return { supabase, headers };
 }
 
-
-
 export async function getSupabaseWithSessionAndHeaders({
-    request,
+  request,
 }: {
-    request: Request;
-}){
-    const { supabase, headers } = getSupabaseWithHeaders({ request });
-    const {data : {session: serverSession}, }= await supabase.auth.getSession();
-    return { supabase, serverSession, headers }; 
-
+  request: Request;
+}) {
+  const { supabase, headers } = getSupabaseWithHeaders({ request });
+  const { data: { session: serverSession } } = await supabase.auth.getSession();
+  return { supabase, serverSession, headers };
 }
