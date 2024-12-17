@@ -4,7 +4,7 @@ import type { MetaFunction } from '@remix-run/react';
 import TextField from '~/components/textField';
 import { Link, useActionData, useOutletContext } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { validationEmail, validatePassword } from '~/components/utils/validator.server';
 import { logins } from '~/components/utils/auth.server';
 import { SupabaseOutletContext } from '~/components/utils/supabaseClient';
@@ -46,10 +46,14 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     try {
-        return await logins({ email, password });
+        const { session, user } = await logins({ email, password });
+        if (!session) {
+            throw new Error('Login failed');
+        }
+        return redirect("/");
     } catch (error) {
         console.error("Login error:", error);
-        return json({ error: "Login failed" }, { status: 500 });
+        return json({ error: error.message || "Login failed" }, { status: 500 });
     }
 }
 
@@ -62,6 +66,7 @@ interface ActionData {
         email?: string;
         password?: string;
     };
+    error?: string;
 }
 
 const Login = () => {
@@ -80,16 +85,6 @@ const Login = () => {
     }
 
     const { supabase, domainUrl } = useOutletContext<SupabaseOutletContext>();
-    const handleSignIn = async () => {
-        await supabase.auth.signInWithOAuth(
-            {
-                provider: "github",
-                options: {
-                    redirectTo: `${domainUrl}/resources/auth/callback`,
-                },
-            }
-        );
-    }
 
     return (
         <Layout>
@@ -99,6 +94,11 @@ const Login = () => {
                     {actionData?.errors && (
                         <div className="text-red-500 mb-3">
                             {Object.values(actionData.errors).map((error, idx) => error && <p key={idx}>{error}</p>)}
+                        </div>
+                    )}
+                    {actionData?.error && (
+                        <div className="text-red-500 mb-3">
+                            <p>{actionData.error}</p>
                         </div>
                     )}
                     <TextField 
