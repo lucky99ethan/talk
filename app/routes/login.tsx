@@ -8,6 +8,7 @@ import { json, redirect } from "@remix-run/node";
 import { validationEmail, validatePassword } from '~/components/utils/validator.server';
 import { logins } from '~/components/utils/auth.server';
 import { SupabaseOutletContext } from '~/components/utils/supabaseClient';
+import { getSupabaseWithSessionAndHeaders } from '~/components/utils/supabase.server';
 
 export const meta: MetaFunction = () => {
     return [
@@ -24,9 +25,6 @@ export const action: ActionFunction = async ({ request }) => {
     const action = form.get("_action");
     const email = form.get("email");
     const password = form.get("password");
-
-    // Log the form data
-    console.log("Form Data:", { action, email, password });
 
     if (
         typeof action !== "string" ||
@@ -50,7 +48,23 @@ export const action: ActionFunction = async ({ request }) => {
         if (!session) {
             throw new Error('Login failed');
         }
-        return redirect("/");
+
+        // Get and set the auth headers
+        const { headers } = await getSupabaseWithSessionAndHeaders({ request });
+
+        // Create response with redirect and set headers
+        const response = new Response(null, {
+            status: 302,
+            headers: {
+                Location: '/home', // Redirect to your home page
+            },
+        });
+
+        headers.forEach((value, key) => {
+            response.headers.append(key, value);
+        });
+
+        return response;
     } catch (error) {
         console.error("Login error:", error);
         return json({ error: error.message || "Login failed" }, { status: 500 });

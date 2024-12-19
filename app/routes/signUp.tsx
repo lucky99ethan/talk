@@ -91,17 +91,7 @@ const SignUp = () => {
     }
 
     const { supabase, domainUrl } = useOutletContext<SupabaseOutletContext>();
-    const handleSignUp = async () => {
-        await supabase.auth.signUp(
-            {
-                email: formData.email,
-                password: formData.password,
-                options: {
-                    redirectTo: `${domainUrl}/resources/auth/callback`,
-                },
-            }
-        );
-    }
+
 
     return (
         <Layout>

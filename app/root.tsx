@@ -7,7 +7,6 @@ import {
   useLoaderData,
   LiveReload,
 } from "@remix-run/react";
-
 import "./tailwind.css";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -39,15 +38,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const env = getSupabaseEnv();
 
     const url = new URL(request.url);
-    if (!serverSession && url.pathname !== "/login" && url.pathname !== "/signUp") {
-      console.error("Error fetching session");
+    const isAuthRoute = url.pathname === "/login" || url.pathname === "/signUp";
+
+    // Only redirect if not on auth routes and no valid session exists
+    if (!isAuthRoute && !serverSession) {
       return redirect("/login");
     }
 
-    return json({ serverSession, env, domainUrl }, { headers });
+    // Redirect to the desired page after successful login
+    if (isAuthRoute && serverSession) {
+      return redirect("/");
+    }
+
+    return json({ 
+      serverSession, 
+      env, 
+      domainUrl 
+    }, { 
+      headers
+    });
   } catch (error) {
     console.error("Loader error:", error);
-    return json({ error: "Failed to load data" }, { status: 500 });
+    return json({ 
+      error: "Failed to load data",
+      env: getSupabaseEnv(),
+      domainUrl: process.env.DOMAIN_URL,
+      serverSession: null
+    });
   }
 };
 

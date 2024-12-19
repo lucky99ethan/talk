@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Home() {
   return (
-    <div className="text-white min-h-screen">
+    <div className="text-white min-h-screen bg-black" >
       <Navbar />
       <Browse />
       <Upcomming/>
