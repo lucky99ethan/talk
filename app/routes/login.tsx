@@ -25,9 +25,6 @@ export const action: ActionFunction = async ({ request }) => {
     const email = form.get("email");
     const password = form.get("password");
 
-    // Log the form data
-    console.log("Form Data:", { action, email, password });
-
     if (
         typeof action !== "string" ||
         typeof email !== "string" ||
@@ -124,5 +121,4 @@ const Login = () => {
         </Layout>
     )
 }
-
 export default Login;

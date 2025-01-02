@@ -13,7 +13,7 @@ import {
 import styles from "./tailwind.css";
 import { getSupabaseEnv, getSupabaseWithSessionAndHeaders } from "./components/utils/supabase.server";
 import { useSupabase } from "./components/utils/supabaseClient";
-import  Layout  from "./components/layout";
+import Layout from "./components/layout";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles }
