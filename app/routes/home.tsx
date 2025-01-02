@@ -7,24 +7,23 @@ import Footer from "~/components/Footer";
 import type { LoaderFunction } from "@remix-run/node";
 import { getSupabaseWithSessionAndHeaders } from "~/components/utils/supabase.server";
 import { json, redirect } from "@remix-run/node";
-import type { LoaderFunctionArgs } from "@remix-run/node";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
-  const { data: { session } } = await supabase.auth.getSession();
+    const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+    const { data: { session } } = await supabase.auth.getSession();
 
-  if (!session) {
-      return redirect('/login', { headers });
-  }
+    if (!session) {
+        return redirect('/login', { headers });
+    }
 
-  return json({ 
-      user: session.user 
-  }, { headers });
+    return json({ 
+        user: session.user 
+    }, { headers });
 };
 
-export default function Index() {
+export default function Home() {
   return (
-    <div className="text-white min-h-screen">
+    <div className="text-white min-h-screen bg-black">
       <Navbar />
       <Browse />
       <Upcomming/>

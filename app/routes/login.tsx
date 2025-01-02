@@ -4,10 +4,11 @@ import type { MetaFunction } from '@remix-run/react';
 import TextField from '~/components/textField';
 import { Link, useActionData, useOutletContext } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { validationEmail, validatePassword } from '~/components/utils/validator.server';
 import { logins } from '~/components/utils/auth.server';
 import { SupabaseOutletContext } from '~/components/utils/supabaseClient';
+import { getSupabaseWithSessionAndHeaders } from '~/components/utils/supabase.server';
 
 export const meta: MetaFunction = () => {
     return [
@@ -16,7 +17,15 @@ export const meta: MetaFunction = () => {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-    return null;
+    const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // If user is already logged in, redirect to home
+    if (session) {
+        return redirect('/home', { headers });
+    }
+
+    return json({}, { headers });
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -43,10 +52,26 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     try {
-        return await logins({ email, password });
+        const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error || !data.session) {
+            throw error || new Error('Login failed');
+        }
+
+        return redirect('/home', { 
+            headers: new Headers({
+                ...Object.fromEntries(headers),
+                'Set-Cookie': headers.get('Set-Cookie') || '',
+            })
+        });
     } catch (error) {
         console.error("Login error:", error);
-        return json({ error: "Login failed" }, { status: 500 });
+        return json({ error: error.message || "Login failed" }, { status: 500 });
     }
 }
 
@@ -59,6 +84,7 @@ interface ActionData {
         email?: string;
         password?: string;
     };
+    error?: string;
 }
 
 const Login = () => {
@@ -76,17 +102,7 @@ const Login = () => {
         }));
     }
 
-    const { supabase, domainUrl } = useOutletContext<SupabaseOutletContext>();
-    const handleSignIn = async () => {
-        await supabase.auth.signInWithOAuth(
-            {
-                provider: "github",
-                options: {
-                    redirectTo: `${domainUrl}/resources/auth/callback`,
-                },
-            }
-        );
-    }
+    const { supabase } = useOutletContext<SupabaseOutletContext>();
 
     return (
         <Layout>
@@ -96,6 +112,11 @@ const Login = () => {
                     {actionData?.errors && (
                         <div className="text-red-500 mb-3">
                             {Object.values(actionData.errors).map((error, idx) => error && <p key={idx}>{error}</p>)}
+                        </div>
+                    )}
+                    {actionData?.error && (
+                        <div className="text-red-500 mb-3">
+                            <p>{actionData.error}</p>
                         </div>
                     )}
                     <TextField 
