@@ -9,19 +9,21 @@ import { getSupabaseWithSessionAndHeaders } from "~/components/utils/supabase.se
 import { json, redirect } from "@remix-run/node";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { serverSession } = await getSupabaseWithSessionAndHeaders({ request });
-  
-  // Protect this route - redirect to login if not authenticated
-  if (!serverSession) {
-    return redirect("/login");
-  }
-  
-  return json({});
+    const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+        return redirect('/login', { headers });
+    }
+
+    return json({ 
+        user: session.user 
+    }, { headers });
 };
 
 export default function Home() {
   return (
-    <div className="text-white min-h-screen bg-black" >
+    <div className="text-white min-h-screen bg-black">
       <Navbar />
       <Browse />
       <Upcomming/>

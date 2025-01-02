@@ -47,7 +47,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     // Redirect to the desired page after successful login
     if (isAuthRoute && serverSession) {
-      return redirect("/");
+      return redirect("/home");
     }
 
     return json({ 

@@ -17,7 +17,15 @@ export const meta: MetaFunction = () => {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-    return null;
+    const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // If user is already logged in, redirect to home
+    if (session) {
+        return redirect('/home', { headers });
+    }
+
+    return json({}, { headers });
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -44,27 +52,23 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     try {
-        const { session, user } = await logins({ email, password });
-        if (!session) {
-            throw new Error('Login failed');
+        const { supabase, headers } = await getSupabaseWithSessionAndHeaders({ request });
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error || !data.session) {
+            throw error || new Error('Login failed');
         }
 
-        // Get and set the auth headers
-        const { headers } = await getSupabaseWithSessionAndHeaders({ request });
-
-        // Create response with redirect and set headers
-        const response = new Response(null, {
-            status: 302,
-            headers: {
-                Location: '/home', // Redirect to your home page
-            },
+        return redirect('/home', { 
+            headers: new Headers({
+                ...Object.fromEntries(headers),
+                'Set-Cookie': headers.get('Set-Cookie') || '',
+            })
         });
-
-        headers.forEach((value, key) => {
-            response.headers.append(key, value);
-        });
-
-        return response;
     } catch (error) {
         console.error("Login error:", error);
         return json({ error: error.message || "Login failed" }, { status: 500 });
@@ -98,7 +102,7 @@ const Login = () => {
         }));
     }
 
-    const { supabase, domainUrl } = useOutletContext<SupabaseOutletContext>();
+    const { supabase } = useOutletContext<SupabaseOutletContext>();
 
     return (
         <Layout>

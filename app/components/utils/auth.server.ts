@@ -17,7 +17,7 @@ export const logins = async ({ email, password }: { email: string; password: str
     console.error('Login error:', error);
     throw new Error('Login failed');
   }
-
+  console.log("the data: ", data)
   return data;
 };
 
