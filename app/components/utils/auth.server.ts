@@ -10,15 +10,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+
 export const logins = async ({ email, password }: { email: string; password: string }) => {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  console.log("the data that are fetched:", data)
 
   if (error) {
     console.error('Login error:', error);
     throw new Error('Login failed');
   }
-  console.log("the data: ", data)
-  return data;
+
+  // Fetch the user's profile information
+  const { data: profile, error: profileError } = await supabase
+    .from('profile')
+    .select('name')
+    .eq('id', data.user.id)
+    .single();
+
+  if (profileError) {
+    console.error('Profile fetch error:', profileError);
+    throw new Error('Failed to fetch user profile');
+  }
+
+  return { ...data, user: { ...data.user, name: profile.name } };
 };
 
 export const signUp = async ({ email, password, name }: { email: string; password: string; name: string }) => {

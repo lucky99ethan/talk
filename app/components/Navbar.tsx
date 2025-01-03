@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLoaderData } from "@remix-run/react";
 import { FaSearch, FaUserCircle } from "react-icons/fa";
@@ -45,20 +44,22 @@ const Navbar = () => {
             />
           )}
         </div>
-        <div className="relative">
-          <FaUserCircle className="text-white text-3xl cursor-pointer" onClick={toggleDropdown} />
-          <span className="ml-2">{user.name}</span>
-          {showDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
-              <div className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100">
-                Settings
+        {user && (
+          <div className="relative">
+            <FaUserCircle className="text-white text-3xl cursor-pointer" onClick={toggleDropdown} />
+            <span className="ml-2">{user.name}</span>
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
+                <div className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100">
+                  Settings
+                </div>
+                <div className="p-4 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
+                  Logout
+                </div>
               </div>
-              <div className="p-4 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
-                Logout
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );
