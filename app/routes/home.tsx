@@ -13,7 +13,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     const { data: { session } } = await supabase.auth.getSession();
 
     if (!session) {
-        return redirect('/login', { headers });
+        return redirect('/', { headers });
     }
 
     return json({ 

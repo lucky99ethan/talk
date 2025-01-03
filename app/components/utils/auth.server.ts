@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import { redirect } from '@remix-run/node';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
@@ -65,4 +66,11 @@ export const signUp = async ({ email, password, name }: { email: string; passwor
   }
 
   return data;
+};
+export const logout = async (request: Request) => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw new Error('Logout failed');
+  }
+  return redirect('/');
 };

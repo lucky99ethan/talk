@@ -1,18 +1,13 @@
 import { useState } from "react";
-import { Link, useLoaderData, Form } from "@remix-run/react";
-import { FaSearch, FaUserCircle } from "react-icons/fa";
+import { Link, useLoaderData } from "@remix-run/react";
+import { FaSearch } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbars = () => {
   const [searchVisible, setSearchVisible] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const { user } = useLoaderData();
 
   const handleSearchClick = () => {
     setSearchVisible(!searchVisible);
-  };
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
   };
 
   return (
@@ -37,28 +32,13 @@ const Navbar = () => {
             />
           )}
         </div>
-        <div className="relative">
-          <div className="flex flex-row items-center space-x-2">
-          <FaUserCircle className="text-white text-3xl cursor-pointer" onClick={toggleDropdown} />
-          <span className="ml-2">{user?.user_metadata?.name}</span>
-          </div>
-         
-          {showDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg">
-              <div className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100">
-                Settings
-              </div>
-              <Form method="post" action="/logout">
-                <button type="submit" className="w-full text-left p-4 cursor-pointer hover:bg-gray-100 transition duration-300">
-                  Logout
-                </button>
-              </Form>
-            </div>
-          )}
+        <div className="flex items-center space-x-4">
+          <Link to="/login" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">Login</Link>
+          <Link to="/signup" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300">Sign Up</Link>
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar;
+export default Navbars;

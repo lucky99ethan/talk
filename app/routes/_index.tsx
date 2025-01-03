@@ -1,4 +1,4 @@
-import Navbar from "~/components/Navbar";
+import Navbars from "~/components/Navbars";
 import Browse from "~/components/Browse";
 import Upcomming from "~/components/Upcomming";
 import Release from "~/components/Release";
@@ -25,7 +25,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Index() {
   return (
     <div className="text-white min-h-screen">
-      <Navbar />
+      <Navbars />
       <Browse />
       <Upcomming/>
       <Release />
